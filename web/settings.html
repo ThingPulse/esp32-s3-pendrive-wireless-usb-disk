@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    form {
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    input[type="text"],
+    input[type="password"],
+    select {
+      width: 95%;
+      padding: 10px;
+      margin: 5px 0;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+  
+  <form id="settingsForm">
+    <h1>Device Settings</h1>
+    <div class="form-group">
+      
+      <label for="mode">Mode</label>
+      <select id="mode">
+        <option value="AP">AP</option>
+        <option value="STA">STA</option>
+        <option value="AP+STA">AP+STA</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="apSsid">AP SSID</label>
+      <input type="text" id="apSsid">
+    </div>
+    <div class="form-group">
+      <label for="apPassword">AP Password</label>
+      <input type="text" id="apPassword">
+    </div>
+    <div class="form-group">
+      <label for="staSsid">STA SSID</label>
+      <input type="text" id="staSsid">
+    </div>
+    <div class="form-group">
+      <label for="staPassword">STA Password</label>
+      <input type="password" id="staPassword">
+    </div>
+    <button type="button" onclick="saveSettings()">Save Settings</button>
+  </form>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      loadSettings();
+    });
+
+    async function loadSettings() {
+      try {
+        const response = await fetch('/api/settings');
+        if (!response.ok) {
+          throw new Error('Network response was not ok ' + response.statusText);
+        }
+        const data = await response.json();
+        document.getElementById('mode').value = data.mode;
+        document.getElementById('apSsid').value = data.apSsid;
+        document.getElementById('apPassword').value = data.apPassword;
+        document.getElementById('staSsid').value = data.staSsid;
+        document.getElementById('staPassword').value = data.staPassword;
+      } catch (error) {
+        console.error('Error loading settings:', error);
+      }
+    }
+
+    async function saveSettings() {
+      const staPassword = document.getElementById('staPassword').value;
+      const settings = {
+        mode: document.getElementById('mode').value,
+        apSsid: document.getElementById('apSsid').value,
+        apPassword: document.getElementById('apPassword').value,
+        staSsid: document.getElementById('staSsid').value,
+        staPassword: document.getElementById('staPassword').value,
+      };
+      if (staPassword === '' || staPassword === 'undefined') {
+        delete settings.staPassword;
+      }
+
+      try {
+        const response = await fetch('/api/settings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(settings)
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok ' + response.statusText);
+        }
+
+        // If you need to restart the device after settings are saved, you can handle that here
+        alert('Settings saved successfully');
+        // Optionally restart logic here, e.g., await fetch('/api/restart', { method: 'POST' });
+
+      } catch (error) {
+        console.error('Error saving settings:', error);
+      }
+    }
+  </script>
+</body>
+</html>
