@@ -11,7 +11,8 @@ with a webserver. A user can then access the files stored on the
 memory stick over this web interface.
 
 
-# How To Build & Flash
+
+# How To Build & Flash
 
 1. Checkout this repository with git
 2. Open with VS Code
